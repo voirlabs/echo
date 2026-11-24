@@ -22,3 +22,7 @@ overrides:
   'ip-address': '^10.7.4'
   'proxy-addr': '^2.0.8'
   'qs': '^6.16.1'
+
+# Install only versions published at least 3 days ago (matches Dependabot, and keeps
+# brand-new and possibly compromised releases out of the lockfile).
+minimumReleaseAge: 4320
