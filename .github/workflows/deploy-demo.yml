@@ -1,0 +1,91 @@
+name: Deploy demo
+
+# Redeploys the Voir Labs demo (repository variable DEMO_URL) after CI passes on main,
+# or on demand from main.
+# Runs only in the voirlabs repository; forks skip it. The SSH key in secrets can
+# only replace this app's files and restart it on the demo server (a forced
+# command there), plus open a tunnel to its database for migrations.
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy-demo
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: >-
+      github.repository == 'voirlabs/echo' &&
+      ((github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') ||
+       (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEXT_PUBLIC_APP_URL: ${{ vars.DEMO_URL }}
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          persist-credentials: false
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build a standalone bundle
+        run: |
+          # Standalone output is turned on for this build only.
+          python3 - <<'PY'
+          p, anchor = "apps/web/next.config.ts", "const config: NextConfig = {"
+          s = open(p).read()
+          assert s.count(anchor) == 1, "next.config anchor not found"
+          open(p, "w").write(s.replace(anchor, anchor + '\n  output: "standalone", outputFileTracingRoot: process.cwd() + "/../..",'))
+          PY
+          pnpm --filter @echo/web build
+          mkdir -p out/apps/web/.next
+          cp -a apps/web/.next/standalone/. out/
+          cp -a apps/web/.next/static out/apps/web/.next/static
+          if [ -d apps/web/public ]; then cp -a apps/web/public out/apps/web/; fi
+          cp -a apps/web/prisma out/apps/web/
+
+      - name: Set up SSH
+        env:
+          DEMO_SSH_KEY: ${{ secrets.DEMO_SSH_KEY }}
+          DEMO_KNOWN_HOSTS: ${{ secrets.DEMO_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$DEMO_SSH_KEY" > ~/.ssh/demo
+          chmod 600 ~/.ssh/demo
+          printf '%s\n' "$DEMO_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          printf 'Host *\n  IdentitiesOnly yes\n  BatchMode yes\n' > ~/.ssh/config
+
+      - name: Apply database migrations
+        env:
+          DATABASE_URL: ${{ secrets.DEMO_DATABASE_URL }}
+          DEMO_SSH_TARGET: ${{ secrets.DEMO_SSH_TARGET }}
+        run: |
+          # The deploy key may only open a tunnel to the server's Postgres.
+          ssh -i ~/.ssh/demo -f -N -o ExitOnForwardFailure=yes -L 15432:127.0.0.1:5432 "$DEMO_SSH_TARGET"
+          trap 'pkill -f "15432:127.0.0.1:5432" || true' EXIT
+          pnpm --filter @echo/web exec prisma migrate deploy
+
+      - name: Upload
+        env:
+          DEMO_SSH_TARGET: ${{ secrets.DEMO_SSH_TARGET }}
+        run: rsync -az --delete -e "ssh -i ~/.ssh/demo" out/ "$DEMO_SSH_TARGET:"
+
+      - name: Restart and wait until it answers
+        env:
+          DEMO_SSH_TARGET: ${{ secrets.DEMO_SSH_TARGET }}
+        run: ssh -i ~/.ssh/demo "$DEMO_SSH_TARGET" restart

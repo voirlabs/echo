@@ -1,0 +1,25 @@
+{
+  "name": "echo",
+  "author": "Voir Labs LLC",
+  "private": true,
+  "license": "MIT",
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "pnpm --filter ./apps/web dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "vitest run",
+    "check": "pnpm lint && pnpm typecheck && pnpm test",
+    "db:generate": "pnpm --filter ./apps/web db:generate",
+    "db:migrate": "pnpm --filter ./apps/web db:migrate",
+    "db:migrate:dev": "pnpm --filter ./apps/web db:migrate:dev",
+    "db:setup": "pnpm db:generate && pnpm db:migrate"
+  },
+  "devDependencies": {
+    "vitest": "3.2.4"
+  }
+}

@@ -1,0 +1,155 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+/// The one owner of this instance (id "owner"), signed in with ADMIN_PASSWORD.
+model User {
+  id                  String   @id @default(cuid())
+  name                String?
+  onboardingCompleted Boolean  @default(false) @map("onboarding_completed")
+  profileText         String?  @map("profile_text")
+  // The learned style guide, built from the writing samples by the assistant
+  // (lib/style-tasks.ts). Null until built; drafting then uses DEFAULT_STYLE.
+  writingStyle        String?  @map("writing_style")
+  // Signed into every session cookie (lib/session-token.ts). Signing out replaces
+  // it, which ends every session on every device.
+  sessionEpoch        String   @default(dbgenerated("(gen_random_uuid())::text")) @map("session_epoch")
+  createdAt           DateTime @default(now()) @map("created_at")
+
+  drafts         Draft[]
+  entries        ProfileEntry[]
+  writingSamples WritingSample[]
+  oauthCodes     OAuthCode[]
+  oauthTokens    OAuthToken[]
+
+  @@map("users")
+}
+
+// Anything the assistant can cite when it writes: a role, a project, a result,
+// a credential, a story. Ranked by how well it matches what the user replies to.
+model ProfileEntry {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  title     String
+  details   String   @default("")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("profile_entries")
+}
+
+// A saved draft. `key` is random, unique per user, and appears in its URL. `url` is the normalized link it was written for, if any; a page can
+// hold several drafts.
+model Draft {
+  id        Int      @id @default(autoincrement())
+  userId    String   @map("user_id")
+  key       String
+  url       String   @default("")
+  title     String   @default("")
+  // What the draft answers: the post or brief, as given.
+  brief     String   @default("")
+  text      String   @default("")
+  // [{ question, answer }] for application questions (lib/draft-questions.ts).
+  questions Json     @default("[]")
+  // A page the extension scanned: "requested" until the assistant picks it up,
+  // "drafting" while it writes, "ready" once saved. Plain drafts are "ready".
+  status    String   @default("ready")
+  // The page's fields and the values drafted for them (lib/page-fields.ts).
+  fields    Json     @default("[]")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, key])
+  @@index([userId, url])
+  @@map("drafts")
+}
+
+// Text the user wrote, which their style is measured and learned from.
+model WritingSample {
+  id        Int       @id @default(autoincrement())
+  userId    String    @map("user_id")
+  label     String?
+  text      String
+  // The assistant's notes on this sample's voice. Null until analysed.
+  notes     String?
+  notedAt   DateTime? @map("noted_at")
+  // When these notes were folded into User.writingStyle. Null: not yet.
+  learnedAt DateTime? @map("learned_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("writing_samples")
+}
+
+// OAuth 2.1 for the MCP endpoint at /mcp. Clients register dynamically (RFC 7591);
+// codes and tokens are stored only as SHA-256 hashes.
+
+model OAuthClient {
+  id           String   @id @default(cuid())
+  clientId     String   @unique @map("client_id")
+  name         String
+  redirectUris String[] @map("redirect_uris")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  codes  OAuthCode[]
+  tokens OAuthToken[]
+
+  @@map("oauth_clients")
+}
+
+model OAuthCode {
+  id            String    @id @default(cuid())
+  codeHash      String    @unique @map("code_hash")
+  clientId      String    @map("client_id")
+  userId        String    @map("user_id")
+  redirectUri   String    @map("redirect_uri")
+  codeChallenge String    @map("code_challenge")
+  scope         String
+  resource      String?
+  expiresAt     DateTime  @map("expires_at")
+  // Set when the code is exchanged. The row is kept until it expires, so a
+  // replayed code can be recognised and the tokens it issued revoked.
+  usedAt        DateTime? @map("used_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+
+  client OAuthClient  @relation(fields: [clientId], references: [clientId], onDelete: Cascade)
+  user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokens OAuthToken[]
+
+  @@map("oauth_codes")
+}
+
+model OAuthToken {
+  id               String    @id @default(cuid())
+  accessHash       String    @unique @map("access_hash")
+  refreshHash      String?   @unique @map("refresh_hash")
+  clientId         String    @map("client_id")
+  userId           String    @map("user_id")
+  // The authorization code this token chain started from.
+  codeId           String?   @map("code_id")
+  scope            String
+  expiresAt        DateTime  @map("expires_at")
+  refreshExpiresAt DateTime? @map("refresh_expires_at")
+  revokedAt        DateTime? @map("revoked_at")
+  lastUsedAt       DateTime? @map("last_used_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+
+  client OAuthClient @relation(fields: [clientId], references: [clientId], onDelete: Cascade)
+  user   User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  code   OAuthCode?  @relation(fields: [codeId], references: [id], onDelete: SetNull)
+
+  @@index([userId])
+  @@index([codeId])
+  @@map("oauth_tokens")
+}

@@ -1,0 +1,323 @@
+/* The Voir Labs theme, as in apps/web/src/styles/globals.css. Dark only.
+   Urbanist ships inside the extension (fonts/, SIL OFL), since the popup loads
+   nothing remote. */
+@font-face {
+  font-family: "Urbanist";
+  font-style: normal;
+  font-weight: 400;
+  font-display: block;
+  src: url("fonts/urbanist-400.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Urbanist";
+  font-style: normal;
+  font-weight: 500;
+  font-display: block;
+  src: url("fonts/urbanist-500.woff2") format("woff2");
+}
+:root {
+  color-scheme: dark;
+  --bg: #080809;
+  --surface-2: #131016;
+  --card: #17141d;
+  --card-line: #302b39;
+  --line: #27252b;
+  --line-2: #37313d;
+  --input: #121016;
+  --input-line: #302d34;
+  --text: #f3f1ed;
+  --muted: #b3acbc;
+  --faint: #8f8799;
+  --accent: #d0a2ff;
+  --accent-2: #c8acf5;
+  --active: #1f1d23;
+  --pill: #f2f0ed;
+  --pill-text: #151417;
+  --pill-hover: #d6c3ef;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --quick: 150ms var(--ease);
+  --danger: #ff8a9b;
+  --success: #8fe3b5;
+  --warning: #f5c97a;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  width: 360px;
+  margin: 0;
+  padding: 16px;
+  font: 500 13px/1.5 Urbanist, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+a {
+  color: var(--text);
+}
+[hidden] {
+  display: none !important;
+}
+
+/* Header: the lockup, then sign-in status and the server button. */
+.head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-right: auto;
+}
+.who {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 12px;
+  color: var(--muted);
+}
+#statusText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--faint);
+  flex: 0 0 auto;
+}
+.dot.on {
+  background: var(--success);
+  box-shadow: none;
+}
+.dot.off {
+  background: var(--danger);
+}
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-right: -6px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--faint);
+  cursor: pointer;
+  transition: background-color var(--quick), color var(--quick);
+}
+.icon-btn:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+/* Buttons: 10px corners, as in the app. */
+.btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 16px;
+  border: 1px solid var(--pill);
+  border-radius: 10px;
+  background: var(--pill);
+  color: var(--pill-text);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--quick), border-color var(--quick), color var(--quick), transform var(--quick);
+}
+.btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.btn:hover {
+  background: var(--pill-hover);
+  border-color: var(--pill-hover);
+}
+.btn:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.btn.ghost {
+  background: transparent;
+  color: var(--text);
+  border-color: var(--line-2);
+}
+.btn.ghost:hover:not(:disabled) {
+  background: var(--active);
+  border-color: var(--line-2);
+  color: var(--text);
+}
+
+/* Text. */
+.how,
+.hint {
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.hint:empty {
+  display: none;
+}
+.label {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0;
+  color: var(--faint);
+}
+.status {
+  margin: 12px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.status.err {
+  color: var(--danger);
+}
+.status:empty {
+  display: none;
+}
+
+/* Drafts. */
+.item-title {
+  font-size: 14px;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.card {
+  padding: 16px;
+  border: 1px solid var(--card-line);
+  border-radius: 12px;
+  background: var(--card);
+}
+.card .btn {
+  margin-top: 12px;
+}
+.card .actions .btn {
+  margin-top: 0;
+}
+.card .text-btn {
+  display: block;
+  margin-top: 12px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: color var(--quick);
+}
+.card .text-btn:hover {
+  color: var(--text);
+}
+.item-note {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+.item-note.state {
+  color: var(--warning);
+}
+.item-note.ready {
+  color: var(--success);
+}
+/* The one live indicator: a calm dot while the assistant is drafting. */
+.item-note.live::before {
+  content: "";
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin: 0 8px 1px 0;
+  border-radius: 50%;
+  background: currentColor;
+  animation: breathe 1.6s var(--ease) infinite alternate;
+}
+@keyframes breathe {
+  from { opacity: 1; }
+  to { opacity: 0.35; }
+}
+.prompt {
+  margin-top: 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--line-2);
+  border-radius: 8px;
+  background: var(--input);
+  font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--text);
+  user-select: all;
+}
+.all-drafts {
+  margin-top: 16px;
+}
+
+/* Connecting to a server. */
+label {
+  display: block;
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+input {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--input-line);
+  border-radius: 10px;
+  background: var(--input);
+  color: var(--text);
+  font: inherit;
+}
+input:focus {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 1px;
+  border-color: transparent;
+}
+.connect .actions {
+  margin-top: 12px;
+}
+.connect .actions .btn {
+  flex: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before {
+    transition: none !important;
+    animation: none !important;
+  }
+}

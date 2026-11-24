@@ -1,0 +1,19 @@
+# Echo
+
+> Echo is an open-source tool for writing emails, messages, posts and applications in your own voice with the AI you already use: Claude or ChatGPT over MCP. MIT licensed, self-hosted, by Voir Labs.
+
+Echo keeps a knowledge base about you (who you are, facts worth citing and samples of your own writing), which your assistant fills in as you chat, measures your writing style from the samples, and gives your assistant the relevant material and rules for each thing you write. The server never calls a model: your assistant writes the draft on your own plan, Echo checks it against your measured style (openings, length, lists, punctuation, AI tells) and saves it. The Echo Chrome extension reads the page you want to fill, hands it to your assistant with a one-line prompt, and fills in what it drafted. It never sends or submits anything.
+
+## How it works
+
+- MCP server with its own OAuth 2.1 (PKCE, dynamic client registration) at `<your server>/mcp`. Tools: `get_page_request`, `save_page_draft`, `get_writer_context`, `check_draft`, `save_draft`, `get_style_tasks`, `save_style_result`, `add_writing_sample`, `get_profile`, `update_about_me`, `save_profile_entry`, `remove_profile_entry`.
+- Chrome extension (Manifest V3): on the page you want to fill, it reads the page and gives you a one-line prompt for your assistant; the assistant drafts every field over MCP (get_page_request, save_page_draft), and Fill puts each value into its field.
+- Stack: Next.js, Postgres (Prisma), TypeScript. Self-host one Node app with any Postgres 16 (Docker Compose runs one locally).
+
+## Links
+
+- [Website](https://echo.voirlabs.io/)
+- [Source code and quickstart](https://github.com/voirlabs/echo)
+- [MCP server and tools](https://github.com/voirlabs/echo/blob/main/docs/mcp.md)
+- [Browser extension](https://github.com/voirlabs/echo/blob/main/docs/extension.md)
+- [Voir Labs](https://www.voirlabs.io/): the studio behind Echo

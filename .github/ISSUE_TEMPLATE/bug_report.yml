@@ -1,0 +1,33 @@
+name: Bug report
+description: Something isn't working
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the extension on a page with a form
+        2. Copy the prompt and paste it into Claude
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Where
+      description: Web app, extension, or an assistant over MCP (which one). Browser and OS.
+      placeholder: Extension 1.0.0, Chrome 140 on macOS, claude-opus-5-5
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Browser console or server output. Remove any passwords, tokens and personal data.
+      render: text

@@ -1,0 +1,3 @@
+# A private, sign-in-only app.
+User-agent: *
+Disallow: /

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>__APP_NAME__</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="head">
+      <span class="lockup"><img src="logo.svg" alt="" width="24" height="24" />__APP_WORDMARK__</span>
+      <span class="who" id="who" role="status" aria-live="polite" hidden>
+        <span class="dot" id="dot" aria-hidden="true"></span><span id="statusText">Checking sign-in</span>
+      </span>
+      <button class="icon-btn" id="changeServer" type="button" aria-label="Change server" title="Change server" hidden>
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="3" />
+          <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" />
+        </svg>
+      </button>
+    </header>
+
+    <section class="connect" id="connect" hidden>
+      <h2 class="label">Connect to your server</h2>
+      <p class="how">
+        __APP_NAME__ keeps your profile and drafts on your own server. Enter its address. The
+        extension asks for access to that address only.
+      </p>
+      <label for="serverUrl">Server address</label>
+      <input id="serverUrl" type="url" inputmode="url" spellcheck="false" placeholder="echo.example.com" />
+      <div class="actions">
+        <button class="btn" id="connectServer" type="button">Connect</button>
+        <button class="btn ghost" id="cancelConnect" type="button" hidden>Cancel</button>
+      </div>
+      <p class="status" id="connectStatus" role="status"></p>
+    </section>
+
+    <main id="main" hidden>
+      <p class="hint" id="hint"></p>
+      <a class="btn" id="signin" target="_blank" rel="noopener noreferrer" hidden>Sign in to __APP_NAME__</a>
+
+      <section id="current" hidden>
+        <h2 class="label">This page</h2>
+        <div class="card" id="currentCard"></div>
+        <p class="status" id="currentStatus" role="status" aria-live="polite"></p>
+      </section>
+
+      <a class="btn ghost all-drafts" id="allDrafts" target="_blank" rel="noopener noreferrer" hidden>All drafts</a>
+    </main>
+
+    <script src="popup.js"></script>
+  </body>
+</html>

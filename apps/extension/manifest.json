@@ -1,0 +1,40 @@
+{
+  "manifest_version": 3,
+  "name": "__APP_NAME__: writes in your voice",
+  "short_name": "__APP_NAME__",
+  "version": "1.0.0",
+  "description": "Have Claude or ChatGPT draft the page you're on in your own voice, then fill every field in one click. Never submits.",
+  "homepage_url": "__SITE_URL__",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*"
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "__APP_NAME__",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "commands": {
+    "_execute_action": {
+      "suggested_key": {
+        "default": "Alt+Shift+O"
+      },
+      "description": "Open __APP_NAME__"
+    }
+  }
+}

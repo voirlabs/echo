@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.next/
+*.tsbuildinfo
+# Every env file except the committed examples.
+.env
+.env.*
+!.env.example
+
+# Firebase local files
+firebase-debug.log
+.firebase/
